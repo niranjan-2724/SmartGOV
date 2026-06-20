@@ -501,16 +501,39 @@ showStep(currentStep)
 function sendOTP(){
 
 let email=document.getElementById("email").value
+if(!email){
+    alert("Please enter an email address first.");
+    return;
+}
+
+let btn = document.querySelector("button[onclick='sendOTP()']");
+let originalText = btn.innerHTML;
+btn.disabled = true;
+btn.innerHTML = "Sending...";
 
 fetch("/send_otp",{
 method:"POST",
 headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:"email="+email
+body:"email="+encodeURIComponent(email)
 })
-.then(res=>res.json())
+.then(res=>{
+    if(!res.ok){
+        return res.json().then(data => {
+            throw new Error(data.message || "Failed to send OTP.");
+        });
+    }
+    return res.json();
+})
 .then(data=>{
-alert("OTP Sent to Email")
+    alert("OTP Sent to Email");
+    btn.disabled = false;
+    btn.innerHTML = originalText;
 })
+.catch(err=>{
+    alert("Error: " + err.message + "\n\nIf this app is deployed on Render, please make sure you configured MAIL_USERNAME and MAIL_PASSWORD environment variables correctly in the Render Dashboard.");
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+});
 
 }
 

@@ -15,11 +15,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['UPLOAD_FOLDER'] = 'uploads/job_pdfs'
 app.config["AD_UPLOAD_FOLDER"] = "static/ad_posts"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'iamniranjanxyz27@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wdyl fcpt vtku uxqp'
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', 'on', '1']
+app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() in ['true', 'on', '1']
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'iamniranjanxyz27@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'wdyl fcpt vtku uxqp')
 import re
 mail = Mail(app)
 
@@ -594,7 +595,11 @@ Regards,
 SmartGov System
 """
 
-                mail.send(msg)
+                try:
+                    mail.send(msg)
+                    print(f"Notification sent to {student.email}")
+                except Exception as e:
+                    print(f"Failed to send job match email to {student.email}: {e}")
 
         flash("Job uploaded successfully")
 
@@ -882,7 +887,7 @@ def send_otp():
 
     msg = Message(
         "SmartGov Email Verification OTP",
-        sender='iamniranjanxyz27@gmail.com',  # ✅ your verified email
+        sender=app.config['MAIL_USERNAME'],  # ✅ dynamically loaded verified email
         recipients=[email]
     )
 
@@ -897,10 +902,10 @@ def send_otp():
     try:
         mail.send(msg)
         print("OTP sent successfully")   # helpful for Render logs
+        return {"status": "OTP Sent"}
     except Exception as e:
         print("Mail error:", e)          # VERY IMPORTANT for debugging
-
-    return {"status": "OTP Sent"}
+        return {"status": "Error", "message": f"Failed to send OTP email: {str(e)}"}, 500
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
 

@@ -25,6 +25,12 @@ border-radius:10px;
 box-shadow:0 6px 20px rgba(0,0,0,0.1);
 }
 
+@media (max-width: 576px) {
+    .container-box {
+        padding: 20px 15px;
+    }
+}
+
 .step{
 display:none;
 }
@@ -87,38 +93,7 @@ SmartGov Student Registration Portal
 
 <label>Email ID</label>
 
-<div class="input-group">
-
 <input type="email" name="email" id="email" class="form-control" required>
-
-<button type="button" class="btn btn-primary" onclick="sendOTP()">
-
-Send OTP
-
-</button>
-
-</div>
-
-</div>
-
-
-<div class="col-md-6 mb-3">
-
-<label>Enter OTP</label>
-
-<div class="input-group">
-
-<input type="text" id="otp" class="form-control">
-
-<button type="button" class="btn btn-success" onclick="verifyOTP()">
-
-Verify OTP
-
-</button>
-
-</div>
-
-<small id="otpStatus"></small>
 
 </div>
 
@@ -498,73 +473,7 @@ showStep(currentStep)
 }
 
 }
-function sendOTP(){
-
-let email=document.getElementById("email").value
-if(!email){
-    alert("Please enter an email address first.");
-    return;
-}
-
-let btn = document.querySelector("button[onclick='sendOTP()']");
-let originalText = btn.innerHTML;
-btn.disabled = true;
-btn.innerHTML = "Sending...";
-
-fetch("/send_otp",{
-method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:"email="+encodeURIComponent(email)
-})
-.then(res=>{
-    if(!res.ok){
-        return res.json().then(data => {
-            throw new Error(data.message || "Failed to send OTP.");
-        });
-    }
-    return res.json();
-})
-.then(data=>{
-    alert("OTP Sent to Email");
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-})
-.catch(err=>{
-    alert("Error: " + err.message + "\n\nIf this app is deployed on Render, please make sure you configured MAIL_USERNAME and MAIL_PASSWORD environment variables correctly in the Render Dashboard.");
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-});
-
-}
-
-
-function verifyOTP(){
-
-let otp=document.getElementById("otp").value
-
-fetch("/verify_otp",{
-method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:"otp="+otp
-})
-.then(res=>res.json())
-.then(data=>{
-
-if(data.status=="verified"){
-
-document.getElementById("otpStatus").innerHTML="✅ Email Verified"
-document.getElementById("otpStatus").style.color="green"
-
-}else{
-
-document.getElementById("otpStatus").innerHTML="❌ Invalid OTP"
-document.getElementById("otpStatus").style.color="red"
-
-}
-
-})
-
-}
+// OTP functions removed
 
 </script>
 

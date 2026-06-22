@@ -4,8 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import uuid
 from datetime import datetime,date
-from flask_mail import Mail, Message
-import random
 app = Flask(__name__)
 app.secret_key = "smartgov_secret"
 import nltk
@@ -15,14 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['UPLOAD_FOLDER'] = 'uploads/job_pdfs'
 app.config["AD_UPLOAD_FOLDER"] = "static/ad_posts"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', 'on', '1']
-app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() in ['true', 'on', '1']
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'iamniranjanxyz27@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'wdyl fcpt vtku uxqp')
 import re
-mail = Mail(app)
 
 db = SQLAlchemy(app)
 
@@ -134,7 +125,6 @@ class Student(db.Model):
     mobile = db.Column(db.String(20))
     account_created = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
-    otp_status = db.Column(db.Boolean, default=False)
 
     # ---------------------------
     # PERSONAL DETAILS
@@ -263,9 +253,7 @@ def calculate_age(dob):
         (today.month, today.day) < (dob.month, dob.day)
     )
 
-def generate_otp():
-    return str(random.randint(100000,999999))
-import re
+# OTP generation removed
 education_levels = {
     "10th pass": 1,
     "sslc": 1,
@@ -561,46 +549,6 @@ def upload_job():
         db.session.add(new_job)
         db.session.commit()
 
-        # -------------------------------
-        # Send email notifications
-        # -------------------------------
-
-        students = Student.query.all()
-
-        for student in students:
-
-            score = match_job(student, new_job)
-
-            if score >= 60:
-
-                msg = Message(
-                    "New Government Job Matching Your Profile",
-                    sender=app.config['MAIL_USERNAME'],
-                    recipients=[student.email]
-                )
-
-                msg.body = f"""
-Hello {student.full_name},
-
-A new government job matches your profile.
-
-Job Title: {new_job.job_title}
-Department: {new_job.department}
-
-Match Score: {score}%
-
-Login to SmartGov portal to view details.
-
-Regards,
-SmartGov System
-"""
-
-                try:
-                    mail.send(msg)
-                    print(f"Notification sent to {student.email}")
-                except Exception as e:
-                    print(f"Failed to send job match email to {student.email}: {e}")
-
         flash("Job uploaded successfully")
 
         return redirect(url_for("view_jobs"))
@@ -756,11 +704,6 @@ def student_register():
 
     if request.method == "POST":
 
-        # OTP verification check
-        if not session.get("otp_verified"):
-            flash("Please verify your email OTP first")
-            return redirect(url_for("student_register"))
-
         # Handle DOB safely
         dob_str = request.form.get("dob")
 
@@ -864,59 +807,9 @@ def student_register():
 
         flash("Registration Successful")
 
-        session.pop("otp_verified", None)
-
         return redirect(url_for("student_login"))
 
     return render_template("student_register.html")
-@app.route("/send_otp", methods=["POST"])
-def send_otp():
-
-    email = request.form["email"]
-
-    otp = generate_otp()
-
-    session["email_otp"] = otp
-    session["otp_email"] = email
-
-    # DEBUG: Print OTP to console for local testing
-    print(f"\n{'='*20}")
-    print(f"DEBUG - OTP Sent: {otp}")
-    print(f"Target Email: {email}")
-    print(f"{'='*20}\n")
-
-    msg = Message(
-        "SmartGov Email Verification OTP",
-        sender=app.config['MAIL_USERNAME'],  # ✅ dynamically loaded verified email
-        recipients=[email]
-    )
-
-    msg.body = f"""
-    SmartGov Career Portal
-
-    Your Email Verification OTP is: {otp}
-
-    Do not share this OTP with anyone.
-    """
-
-    try:
-        mail.send(msg)
-        print("OTP sent successfully")   # helpful for Render logs
-        return {"status": "OTP Sent"}
-    except Exception as e:
-        print("Mail error:", e)          # VERY IMPORTANT for debugging
-        return {"status": "Error", "message": f"Failed to send OTP email: {str(e)}"}, 500
-@app.route("/verify_otp", methods=["POST"])
-def verify_otp():
-
-    otp = request.form["otp"]
-
-    if otp == session.get("email_otp"):
-
-        session["otp_verified"] = True
-        return {"status":"verified"}
-
-    return {"status":"invalid"}
 @app.route("/academy/register", methods=["GET","POST"])
 def academy_register():
 
@@ -1248,10 +1141,16 @@ with app.app_context():
 
     db.create_all()
 
-    admin = Admin.query.filter_by(username="admin").first()
+    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+
+    admin = Admin.query.filter_by(username=ADMIN_USERNAME).first()
 
     if not admin:
-        new_admin = Admin(username="admin", password="admin123")
+        new_admin = Admin(
+            username=ADMIN_USERNAME,
+            password=ADMIN_PASSWORD
+        )
         db.session.add(new_admin)
         db.session.commit()
 # -----------------------------

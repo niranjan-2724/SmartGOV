@@ -15,7 +15,8 @@
 <style>
 
 body{
-height:100vh;
+min-height:100vh;
+padding:20px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -28,10 +29,16 @@ font-family:'Segoe UI',sans-serif;
 background:white;
 padding:40px;
 border-radius:12px;
-width:420px;
+width:100%;
+max-width:420px;
 box-shadow:0 10px 40px rgba(0,0,0,0.3);
 animation:fadeIn 0.7s;
 
+}
+@media (max-width: 576px) {
+    .login-card {
+        padding: 30px 20px;
+    }
 }
 
 @keyframes fadeIn{

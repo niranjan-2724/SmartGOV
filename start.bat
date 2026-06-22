@@ -10,7 +10,7 @@ echo.
 
 echo [1/4] Navigating to project directory...
 D:
-cd "D:\FINAL_CODE"
+cd "C:\Users\niran\Documents\MY PROJECTS\smart_gov"
 if %errorlevel% neq 0 (
     color 0C
     echo [ERROR] Could not find D:\FINAL_CODE

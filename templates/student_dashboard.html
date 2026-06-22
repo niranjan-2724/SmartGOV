@@ -68,6 +68,29 @@ box-shadow:0 6px 20px rgba(0,0,0,0.08);
 height:8px;
 }
 
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding-bottom: 15px;
+    }
+    .sidebar a {
+        display: inline-block;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    .sidebar h4 {
+        margin-bottom: 15px;
+        text-align: left;
+        padding-left: 15px;
+    }
+    .main {
+        margin-left: 0;
+        padding: 15px;
+    }
+}
+
 </style>
 
 </head>
@@ -230,6 +253,7 @@ View Notification
 
 <div class="card card-box p-3">
 
+<div class="table-responsive">
 <table class="table table-striped">
 
 <thead>
@@ -264,6 +288,7 @@ Download
 </tbody>
 
 </table>
+</div>
 
 </div>
 

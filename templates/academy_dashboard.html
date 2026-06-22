@@ -62,6 +62,29 @@ border-radius:10px;
 box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
 
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding-bottom: 15px;
+    }
+    .sidebar a {
+        display: inline-block;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    .sidebar h4 {
+        margin-bottom: 15px;
+        text-align: left;
+        padding-left: 15px;
+    }
+    .main {
+        margin-left: 0;
+        padding: 15px;
+    }
+}
+
 </style>
 
 </head>
@@ -118,6 +141,7 @@ box-shadow:0 6px 20px rgba(0,0,0,0.08);
 
 <h5 class="mb-3"><i class="fa fa-book"></i> Uploaded Courses</h5>
 
+<div class="table-responsive">
 <table class="table table-bordered">
 
 <thead>
@@ -166,6 +190,7 @@ onclick="return confirm('Delete this course?')">
 </tbody>
 
 </table>
+</div>
 
 </div>
 
@@ -177,6 +202,7 @@ onclick="return confirm('Delete this course?')">
 
 <h5 class="mb-3"><i class="fa fa-image"></i> Advertisement Posts</h5>
 
+<div class="table-responsive">
 <table class="table table-bordered">
 
 <thead>
@@ -225,6 +251,7 @@ onclick="return confirm('Delete this advertisement?')">
 </tbody>
 
 </table>
+</div>
 
 </div>
 

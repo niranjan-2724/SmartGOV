@@ -1144,14 +1144,19 @@ with app.app_context():
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
-    admin = Admin.query.filter_by(username=ADMIN_USERNAME).first()
+    if ADMIN_USERNAME and ADMIN_PASSWORD:
+        admin = Admin.query.first()
 
-    if not admin:
-        new_admin = Admin(
-            username=ADMIN_USERNAME,
-            password=ADMIN_PASSWORD
-        )
-        db.session.add(new_admin)
+        if admin:
+            admin.username = ADMIN_USERNAME
+            admin.password = ADMIN_PASSWORD
+        else:
+            admin = Admin(
+                username=ADMIN_USERNAME,
+                password=ADMIN_PASSWORD
+            )
+            db.session.add(admin)
+
         db.session.commit()
 # -----------------------------
 # RUN APP
